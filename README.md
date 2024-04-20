@@ -479,3 +479,84 @@ Na pasta `templates`, dentro da `usuarios/css` criar o `usuarios.css`
 {% block 'body' %}
 ```
 </details>
+
+## Criação da migration
+
+O Django já trás na sua criação uma serie de estruturas de banco de dados, mas para fazer com que os mesmo sejam ativos é necessário executar a `migration`
+
+```bash
+python .\manage.py migrate
+
+# Resposta do comando
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying sessions.0001_initial... OK
+```
+
+### Configurando a views de cadastro do usuários
+
+1. Altere o arquivo `views` do `app usuários`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from django.contrib.auth.models import User
+
+def cadastro(request):
+    if request.method == "GET":
+        return render(request, 'cadastro.html')
+    elif request.method == "POST":
+        username = request.POST.get('username')
+        email = request.POST.get("email")
+        senha = request.POST.get("senha")
+        confirmar_senha = request.POST.get('confirmar_senha')    
+
+        if senha != confirmar_senha:
+            print('Erro 1')
+            return redirect('/usuarios/cadastro')
+
+        if len(senha) < 6:
+            print('Erro 2')
+            return redirect('/usuarios/cadastro')
+          
+        users = User.objects.filter(username=username)  
+        
+        if users.exists():
+          return redirect('/usuarios/cadastro')        
+        
+        user = User.objects.create_user(
+          username=username,
+          email=email,
+          password=senha,
+        )
+        
+        return redirect('/usuarios/login')      
+```
+
+</details>
+
+2. No `form` de usuário, dentro do arquivo `views`, alterar para a seguinte estrutura:
+
+```html	
+<form action="{% url "cadastro" %}" method="POST">{% csrf_token %}
+```
