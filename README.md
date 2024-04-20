@@ -81,4 +81,48 @@ LANGUAGE_CODE = 'pt-BR'
 TIME_ZONE = 'America/Sao_Paulo'
 ```
 
+## Inicialização do server
+
+No terminal na lina de comando executar o código:
+
+```bash
+python .\manage.py runserver
+```
+No qual irá inicializar o servidor do Django do server
+
+```bash
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+
+You have 18 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+April 20, 2024 - 13:11:49
+Django version 5.0.4, using settings 'healing.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+
+[20/Apr/2024 13:12:08] "GET / HTTP/1.1" 200 10660
+```
+
+## Conceito
+
+Aplicação Web segui uma estrutura `client-server`, onde possui um `cliente` e um `servidor`, onde:
+
+* `servidor` - onde a aplicação fica hospedada, local onde será realizado todos os processamento, validações dos dados, conexão com o banco de dados, manipulação e renderização dos templantes.
+
+* `cliente` - são os Notebooks, computadores, smartphones, ou seja quem está acessando nosso site ou aplicação.
+
+==== IMAGEM DO CONCEITO REQUEST 1 =====
+
+
+# Cadastro Usuários
+
+```bash
+python manage.py startapp usuarios
+```
+
+==== IMAGEM DO CONCEITO REQUEST 2 =====
+
 
