@@ -122,5 +122,360 @@ python manage.py startapp usuarios
 
 ![image](https://github.com/CristianoSFMothe/healing/assets/68359459/d87a8a80-9fda-477c-a679-d32b7f5ab8cf)
 
+1. Dentro da pasta `healing`, no arquivo `urls.py` crie uma URL para o app usuário:
 
+<details><summary>Visualizar código</summary>
 
+```python
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('usuarios/', include('usuarios.urls')),
+]
+```
+
+</details>
+
+2. No app usuário crie um arquivo para armazenar e criar as URL's `urls.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('cadastro/', views.cadastro, name="cadastro"),
+]
+
+```
+
+</details>
+
+3. Na pasta `healing` no arquivo `settings.py`, tem que informar para o Django que a pasta `usuarios`, e um novo app Django para instalar.
+
+<details><summary>Visualizar código</summary>
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'usuarios'
+]
+```
+
+</details>
+
+4. Em `usuarios` no arquivo `views.py` crie a view cadastro:
+
+<details><summary>Visualizar código</summary>
+
+```python
+def cadastro(request):
+    if request.method == "GET":
+        return render(request, 'cadastro.html')
+```
+
+</details>
+
+5. Configure onde o Django deve buscar por arquivos de templates, dentro do arquivo `settings.py`: 
+
+<details><summary>Visualizar código</summary>
+
+```python
+import os
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+```
+
+</details>
+
+### Arquivo base para o HTML
+
+Na raiz do projeto, criar uma pasta `templates`, dentro dessa pasta criar o `base.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <title>{% block 'title' %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% block 'head' %}{% endblock 'head' %}
+  </head>
+  <body>
+    {% block 'body' %}{% endblock 'body' %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
+```
+
+</details>
+
+### Configuração do HTML da página de cadastro
+
+1. Editar o arquivo `views` dentro do `app cadastro`
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+from django.http import HttpResponse
+
+def cadastro(request):
+  return render(request, 'cadastro.html')
+
+```
+
+</details>
+
+2. Dentro da `app usuarios`, criar uma pasta `templates`, com o arquivo `cadastro.html`
+
+<details><summary>Visualizar código</summary>
+
+```html
+{% extends "base.html" %} {% block 'body' %}
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md d-flex justify-content-center">
+      <div class="cont-cadastro">
+        <br />
+        <br />
+        <section class="cont-logo">
+          <img class="logo" src="#" />
+          <label class="text-logo">HEALING</label>
+        </section>
+        <hr />
+
+        <form action="" method="post">
+          <h2 class="fonte-destaque1">Cadastre-se</h2>
+          <br />
+          <label for="">Username</label>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            class="form-control"
+            placeholder="Username ..."
+          />
+          <br />
+          <label for="">E-mail</label>
+          <input
+            type="text"
+            name="email"
+            id="email"
+            placeholder="email@email.com"
+            class="form-control"
+          />
+          <br />
+          <div class="row">
+            <div class="col-md">
+              <label for="">Senha</label>
+              <input
+                type="password"
+                name="senha"
+                id="senha"
+                class="form-control"
+                placeholder="Digite sua senha ..."
+              />
+            </div>
+            <div class="col-md">
+              <label for="">Confirmar senha</label>
+              <input
+                type="password"
+                name="confirmar_senha"
+                id="confirmar_senha"
+                class="form-control"
+                placeholder="Digite sua senha novamente ..."
+                id=""
+              />
+            </div>
+          </div>
+          <br />
+
+          <input
+            type="submit"
+            value="Cadastrar"
+            id="btn_cadastrar"
+            class="btn btn-success btn-dark-color"
+          />
+          <a href="#" class="btn btn-dark-color-outline" id="btn_possui_conta">Já possuo uma conta</a>
+        </form>
+      </div>
+    </div>
+    <div
+      class="col-md bg-main d-flex justify-content-center align-items-center"
+    >
+      <img src="#" alt="" />
+    </div>
+  </div>
+</div>
+
+{% endblock 'body' %}
+
+```
+
+</details>
+
+3. Configure os arquivos estáticos, no core do projeto na pasta `healing`, editar os arquivos estáticos dentro do arquivo `settings.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+STATIC_URL = '/static/'
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'templates/static'),)
+STATIC_ROOT = os.path.join('static')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+```
+
+</details>
+
+4. Na pasta `templates` criar a pasta `static`, dentro dela criar a pasta `usuarios`. E dentro da pasta `usuarios` criar a subpasta `css` e outra `js`. Criar também uma pasta `geral`, com as subpastas `css` e `js`
+
+```
+|- templates
+| |- static
+| |  |- geral
+| |  | |- css
+| |  | |- | base.css
+| |  | |- js
+```
+
+Dento da pasta `css` na pasta `geral`, criar um arquivo `base.css`:
+
+<details><summary>Visualizar código</summary>
+
+```css
+:root{     
+  --main-color: #00CCBE;
+  --dark-color: #09A6A3;
+  --contrast-color: #FFD686;
+}
+
+.bg-color-dark{
+  background-color: var(--main-color);
+}
+
+.p-bold{
+  font-weight: bold;
+}
+
+.color-dark{
+  color: var(--dark-color);
+}
+```
+
+</details>
+
+5. No arquivo `base.html` na pasta `templates` na raiz do projeto, chamar a tag link do HTML:
+
+<details><summary>Visualizar código</summary>
+
+```html	
+<link rel="stylesheet" href="{% static 'geral/css/base.css' %}">
+```
+
+</details>
+
+6. Agora na pasta `templates` dentro da pasta `static`, criar uma pasta `usuarios`. E criar aa subpastas `css` e `js`.
+
+```
+|- templates
+| |- static
+| |  |- geral
+| |  | |- css
+| |  | |- js
+| |  |- usuarios
+| |  | |- css
+| |  | |- | usuarios.css
+| |  | |- js
+```
+
+Na pasta `templates`, dentro da `usuarios/css` criar o `usuarios.css`
+
+<details><summary>Visualizar código</summary>
+
+```css
+.bg-main{
+  background-color: var(--main-color);
+  height: 100vh;
+}
+
+.cont-cadastro{
+  width: 60%;
+}
+
+.cont-logo{
+  text-align: center;
+}
+
+.text-logo{
+  font-size: 30px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.fonte-destaque1{
+  color: var(--dark-color)
+}
+
+.btn-dark-color{
+  background-color: var(--dark-color);
+  color: white;
+}
+
+.btn-dark-color-outline{
+  border: 1px solid var(--dark-color);
+  color: var(--dark-color)
+}
+
+.btn-dark-color-outline:hover{
+  background-color: var(--dark-color);
+  color: white;
+  border: 1px solid var(--dark-color);
+}
+```
+
+</details>
+
+7. No `app usuarios`em `cadastro.html` importe o `usuarios.css`
+
+<details><summary>Visualizar código</summary>
+
+```html
+{% extends "base.html" %}
+{% load static %}
+
+{% block 'head' %}
+    <link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}">
+{% endblock 'head' %}
+
+{% block 'body' %}
+```
+</details>
