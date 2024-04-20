@@ -11,11 +11,6 @@ O **Healing** e um sistema de tele medicina que, no qual foi criado de acordo co
 * Necessário ter o <a href="https://www.python.org/" target="_blank">Python</a>
 * Com o framework do <a href="https://www.djangoproject.com/" target="_blank">Django</a>
 
-## Estrutura HTTP Response
-
-![image](https://github.com/CristianoSFMothe/healing/assets/68359459/ec4e876c-8574-4dd1-9ec4-c40bc2d69536)
-
-![image](https://github.com/CristianoSFMothe/healing/assets/68359459/17b4c142-8289-4fa3-9e63-9a7ddab8a769)
 
 ## Configurações iniciais
 
@@ -106,6 +101,8 @@ Quit the server with CTRL-BREAK.
 [20/Apr/2024 13:12:08] "GET / HTTP/1.1" 200 10660
 ```
 
+![2024-04-20_13h12_12](https://github.com/CristianoSFMothe/healing/assets/68359459/890bda3a-a66d-4e7a-89b0-61fad6b141ea)
+
 ## Conceito
 
 Aplicação Web segui uma estrutura `client-server`, onde possui um `cliente` e um `servidor`, onde:
@@ -114,7 +111,7 @@ Aplicação Web segui uma estrutura `client-server`, onde possui um `cliente` e 
 
 * `cliente` - são os Notebooks, computadores, smartphones, ou seja quem está acessando nosso site ou aplicação.
 
-==== IMAGEM DO CONCEITO REQUEST 1 =====
+![image](https://github.com/CristianoSFMothe/healing/assets/68359459/c37c4a59-2440-4df6-843e-df4a435f9ed9)
 
 
 # Cadastro Usuários
@@ -123,6 +120,7 @@ Aplicação Web segui uma estrutura `client-server`, onde possui um `cliente` e 
 python manage.py startapp usuarios
 ```
 
-==== IMAGEM DO CONCEITO REQUEST 2 =====
+![image](https://github.com/CristianoSFMothe/healing/assets/68359459/d87a8a80-9fda-477c-a679-d32b7f5ab8cf)
+
 
 
