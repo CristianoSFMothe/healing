@@ -9,7 +9,7 @@
         <br />
         <br />
         <section class="cont-logo">
-          <img class="logo" src="#" />
+          <img class="logo" src="{% static 'geral/img/logo.png' %}" alt="logo" />
           <label class="text-logo">HEALING</label>
         </section>
         <hr />
@@ -21,7 +21,7 @@
           <input
             type="text"
             name="username"
-            id=""
+            id="usermane"
             class="form-control"
             placeholder="Username ..."
           />
@@ -30,7 +30,7 @@
           <input
             type="text"
             name="email"
-            id=""
+            id="email"
             placeholder="email@email.com"
             class="form-control"
           />
@@ -41,6 +41,7 @@
               <input
                 type="password"
                 name="senha"
+                id="senha"
                 class="form-control"
                 placeholder="Digite sua senha ..."
               />
@@ -50,6 +51,7 @@
               <input
                 type="password"
                 name="confirmar_senha"
+                id="confirmar_senha"
                 class="form-control"
                 placeholder="Digite sua senha novamente ..."
                 id=""
@@ -61,16 +63,17 @@
           <input
             type="submit"
             value="Cadastrar"
+            id="btn_cadastrar"
             class="btn btn-success btn-dark-color"
           />
-          <a href="#" class="btn btn-dark-color-outline">Já possuo uma conta</a>
+          <a href="#" class="btn btn-dark-color-outline" id="btn_possui_conta">Já possuo uma conta</a>
         </form>
       </div>
     </div>
     <div
       class="col-md bg-main d-flex justify-content-center align-items-center"
     >
-      <img src="#" alt="" />
+      <img src="{% static 'usuarios/img/ilustracao.png' %}" alt="ilustração" />
     </div>
   </div>
 </div>
