@@ -777,9 +777,8 @@ def login_view(request):
     return render(request, 'login.html')    
   elif request.method == 'POST':
     userrname = request.POST.get('username')
-    senha = request.POST.get('senha')
-    
-  # Verificar se exite no banco de dados
+    senha = request.POST.get('senha')    
+
   user = auth.authenticate(request, username=userrname, password=senha)
   
   if user:
@@ -788,6 +787,38 @@ def login_view(request):
   
   messages.add_message(request, constants.ERROR, 'Usuário ou senha inválidos')
   return redirect('/usuarios/login')
+```
+
+</details>
+
+## Logout
+
+1. Criar a URL de logout, no arquivo `urls.py` dentro do `app usuarios`:
+
+<details><summary>Visualizar código</summary>
+
+```python	
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('cadastro/', views.cadastro, name="cadastro"),
+    path('login/', views.login_view, name="login"),
+    path('sair/', views.sair, name="sair"),    
+]
+```
+
+</details>
+
+2. No arquivo `views.py` dentro do `app usuarios` criar a função:
+
+<details><summary>Visualizar código</summary>
+
+```python
+def sair(request):
+  auth.login(request)
+  return redirect('/usuarios/login')
+
 ```
 
 </details>
