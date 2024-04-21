@@ -1362,4 +1362,136 @@ if is_medico(request):
 
 </details>
 
+### Data abertas
 
+1. No `app medico`, criar uma nova nova classe, para representar um tabela no arquivo `models.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+class DatasAbertas(models.Model):
+    data = models.DateTimeField()
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    agendado = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return str(self.data)
+```
+
+</details>
+
+2. Realizar as migrações:
+
+Executando as migration:
+
+```bash
+python manage.py makemigrations
+
+# Resposta do comando executado com sucesso
+Migrations for 'medico':
+  medico\migrations\0003_datasabertas.py
+    - Create model DatasAbertas
+```
+
+```bash
+python manage.py migrate
+
+# Resposta do comando executado com sucesso
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, medico, sessions
+Running migrations:
+  Applying medico.0003_datasabertas... OK
+```
+
+3. Criar a URL para a rota `abrir_horario`, no `app medico` no arquivo `urls.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('cadastro_medico/', views.cadastro_medico, name="cadastro_medico"),
+    path('abrir_horario/', views.abrir_horario, name="abrir_horario"),
+]
+```
+
+</details>
+
+4. No arquivo de `views.py` no `app medico`, criar a função para a rota de `abrir_horario`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+def abrir_horario(request):
+    if not is_medico(request.user):
+      messages.add_message(request, constants.WARNING, 'Somente médicos podem abrir horário.')
+      return redirect('/usuarios/sair')
+    
+    if request.method == 'GET':
+      return render(request, 'abrir_horario.html')
+```
+
+</details>
+
+5. Criar em templates o arquivo `abrir_horario.html`, para renderizar a página de `abrir_horario`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+{% extends "base.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}" />
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}" />
+<link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}" />
+{% endblock 'head' %} {% block 'body' %}
+
+<div class="container">
+  <br /><br />
+
+  <div class="row">
+    <div class="col-md-8">
+      <img src="" class="foto-perfil" alt="" />
+      <label style="margin-left: 30px; font-size: 25px" class="p-bold"
+        >Olá, <span class="color-dark">{{request.user.username}}</span></label
+      >
+
+      <br />
+      {% if messages %}
+      <br />
+      {% for message in messages %}
+      <section class="alert {{message.tags}}">{{message}}</section>
+      {% endfor %} {% endif %}
+      <br />
+      <p style="font-size: 25px" class="p-bold">
+        Abrir horários para consultas
+      </p>
+      <hr />
+      <form action="#" method="POST">
+        <label for="">Escolher data:</label>
+        <input
+          type="datetime-local"
+          name="data"
+          class="form-control shadow-main-color"
+        />
+        <br />
+        <input
+          type="submit"
+          value="Salvar"
+          class="btn btn-success btn-dark-color"
+        />
+      </form>
+    </div>
+    <div class="col-md-4">
+      <p style="font-size: 25px" class="p-bold">Seus horários:</p>
+      <ul class="list-group">
+        <li>X</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% endblock 'body' %}
+```
+
+</details>

@@ -6,9 +6,9 @@ from django.contrib.messages import constants
 
 # Create your views here.
 def cadastro_medico(request):
-    # if is_medico(request.user):
-    #   messages.add_message(request, constants.WARNING, 'Você já é um médico cadastrado.')
-    #   return redirect('/medico/abrir_horario')
+    if is_medico(request.user):
+      messages.add_message(request, constants.WARNING, 'Você já é um médico cadastrado.')
+      return redirect('/medico/abrir_horario')
     
     if request.method == "GET":
       especialidades = Especialidades.objects.all()
@@ -62,5 +62,13 @@ def cadastro_medico(request):
     messages.add_message(request, constants.SUCCESS, 'Cadastro médico realizado com sucesso.')
 
     return redirect('/medicos/abrir_horario')
+  
+def abrir_horario(request):
+    if not is_medico(request.user):
+      messages.add_message(request, constants.WARNING, 'Somente médicos podem abrir horário.')
+      return redirect('/usuarios/sair')
+    
+    if request.method == 'GET':
+      return render(request, 'abrir_horario.html')
 
 
