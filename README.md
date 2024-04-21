@@ -904,9 +904,20 @@ Superuser created successfull
 
 Execute o servidor novamente com o comando `python manage.py runserver` e acesse a rota administrativa.
 
-=== imagem 1 ===
 
-=== imagem 2 ===
+![2024-04-20_22h27_50](https://github.com/CristianoSFMothe/healing/assets/68359459/8f0717f6-cbca-43d9-ae64-c4c0580b2a94)
+
+---
+
+![2024-04-20_22h28_10](https://github.com/CristianoSFMothe/healing/assets/68359459/e86df807-b2c5-4fc8-9b1b-6fd53641238a)
+
+---
+
+![2024-04-20_22h31_44](https://github.com/CristianoSFMothe/healing/assets/68359459/a54dbbcd-1e6c-4bcb-9212-6ca443e0cdf7)
+
+---
+
+![2024-04-20_22h33_06](https://github.com/CristianoSFMothe/healing/assets/68359459/c4f4c060-e2d3-44b0-9623-da8ec8f315c8)
 
 6. No arquivo `admin.py` dentro do `app medico`, cadastrar o banco de dados criado de `Especialidades`, para está visível dentro da área administrativa.
 
