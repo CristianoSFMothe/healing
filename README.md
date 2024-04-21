@@ -991,3 +991,349 @@ admin.site.register(DadosMedico)
 
 </details>
 
+### Configuração da página de médicos
+
+1. Dentro da pasta `healing` no arquivo `urls.py` criar a URL para o `app medico`:
+
+```python
+path('medicos/', include('medico.urls')),
+```
+
+2. No `app medico`, criar um novo arquivo `urls.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('cadastro_medico/', views.cadastro_medico, name="cadastro_medico"),
+]
+```
+
+</details>
+
+3. No `app medico`, no arquivo `views.py`, criar a função:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+
+# Create your views here.
+def cadastro_medico(request):
+    if request.method == "GET":
+        return render(request, 'cadastro_medico.html')
+```
+
+</details>
+
+4. No `app medico` criar uma pasta `templates`, com o arquivo `cadastro_medico.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+{% extends "base.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}" />
+
+{% endblock 'head' %} {% block 'body' %}
+
+<div class="container">
+  <br />
+  <br />
+  <div class="row">
+    <div class="col-md-8">
+      <p class="p-bold">Olá, <span class="color-dark"></span></p>
+      <p class="p-bold">Vamos realizar seu cadastro médico legal.</p>
+      {% if messages %}
+      <br />
+      {% for message in messages %}
+      <section class="alert {{message.tags}}">{{message}}</section>
+      {% endfor %} {% endif %}
+      <br />
+      <form action="#" method="post" enctype="multipart/form-data">
+        <div class="row">
+          <div class="col-md">
+            <label for="">CRM:</label>
+            <input
+              type="text"
+              class="form-control shadow-main-color"
+              name="crm"
+              id="crm"
+              placeholder="CRM..."
+            />
+          </div>
+          <div class="col-md">
+            <label for="">Cédula de identidade médica:</label>
+            <input
+              type="file"
+              name="cim"
+              id="cim"
+              class="form-control shadow-main-color"
+            />
+          </div>
+        </div>
+        <br />
+        <div class="row">
+          <div class="col-md">
+            <label for="">Nome completo:</label>
+            <input
+              type="text"
+              class="form-control shadow-main-color"
+              name="nome"
+              id="nome"
+              placeholder="Digite seu nome ..."
+            />
+          </div>
+          <div class="col-md">
+            <label for="">CEP</label>
+            <input
+              type="text"
+              name="cep"
+              id="cep"
+              class="form-control shadow-main-color"
+            />
+          </div>
+        </div>
+        <br />
+        <label for="">Rua</label>
+        <input
+          type="text"
+          name="rua"
+          id="rua"
+          class="form-control shadow-main-color"
+          placeholder="Endereço ..."
+        />
+        <br />
+        <div class="row">
+          <div class="col-md">
+            <label for="">Bairro:</label>
+            <input
+              type="text"
+              class="form-control shadow-main-color"
+              name="bairro"
+              id="bairro"
+              placeholder="Bairro ..."
+            />
+          </div>
+          <div class="col-md">
+            <label for="">Número:</label>
+            <input
+              type="number"
+              name="numero"
+              id="numero"
+              class="form-control shadow-main-color"
+            />
+          </div>
+        </div>
+        <br />
+        <label for="">RG:</label>
+        <input
+          type="file"
+          name="rg"
+          id="rg"
+          class="form-control shadow-main-color"
+        />
+        <br />
+        <label for="">Foto de perfil:</label>
+        <input
+          type="file"
+          name="foto"
+          id="foto"
+          class="form-control shadow-main-color"
+        />
+        <br />
+        <label for="">Especialidade médica</label>
+        <select name="especialidade" class="form-select" id="">
+          <option value="">X</option>
+        </select>
+        <br />
+        <label for="">Descrição:</label>
+        <textarea
+          name="descricao"
+          id="descricao"
+          class="form-control shadow-main-color"
+        ></textarea>
+        <br />
+        <label for="">Valor consulta:</label>
+        <input
+          type="number"
+          name="valor_consulta"
+          id="valor_consulta"
+          class="form-control shadow-main-color"
+        />
+        <br />
+        <input
+          type="submit"
+          value="Cadastre-se"
+          id="btn_cadastre_se"
+          class="btn btn-success btn-dark-color"
+        />
+      </form>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</div>
+
+{% endblock 'body' %}
+```
+
+</details>
+
+5. Na pasta `templates` na raiz do projeto, criar a estrutura:
+
+```
+|- templates
+| |- static
+| |  |- geral
+| |  | |- css
+| |  | |- js
+| |  |- usuarios
+| |  | |- css
+| |  | |- | usuarios.css
+| |  | |- img
+| |  | |- js
+| |  |- medicos
+| |  | |- css
+| |  | |- | cadastro_medico.css
+| |  | |- img
+| |  | |- js
+```
+
+6. Criar o arquivo `cadastro_medico.css`:
+
+<details><summary>Visualizar código</summary>
+
+```css
+.shadow-main-color{
+    box-shadow: 1px 1px 5px 1px rgba(0, 204, 190,.4);
+}
+```
+
+</details>
+
+7. Importar o `CSS` no `HTML` no `app medico` dentro da pasta `template/cadastro_medico.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}">
+```
+
+</details>
+
+8. Estilizando o nome, no arquivo `cadastro_medico.html`, editar o tag `p` do nome
+
+<details><summary>Visualizar código</summary>
+
+```html
+<p class="p-bold">Olá, <span class="color-dark">{{request.user.username}}</span></p>
+```
+</details>
+
+9. Direcionando o `form` do `app medico` para a URL respectiva:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<form action="{% url 'cadastro_medico' %}" method="post" enctype='multipart/form-data'>{% csrf_token %}
+```
+
+</details>
+
+### Configurando a seleção da especialidade
+
+1. Editar o arquivo `views.py` do `app medico`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+from .models import Especialidades
+
+# Create your views here.
+def cadastro_medico(request):
+    if request.method == "GET":
+      especialidade = Especialidades.objects.all()
+      return render(request, 'cadastro_medico.html', {'especialidade': especialidade})
+```
+
+</details>
+
+2. Recuperando dinamicamente as especialidades médicas cadastradas no banco de dados:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<select name="especialidade" class="form-select" id="">
+  <option disabled selected>Escolha uma especialidade</option>
+  {% for i in especialidades %}
+      <option value="{{ i.id }}">{{ i.especialidade }}</option>
+  {% endfor %}
+</select>
+```
+
+</details>
+
+3. Configuração da função da `views.py` do `cadastro_medico`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render, redirect
+from .models import Especialidades, DadosMedico
+from django.contrib import messages
+from django.http import HttpResponse
+from django.contrib.messages import constants
+
+# Create your views here.
+def cadastro_medico(request):
+    if request.method == "GET":
+      especialidades = Especialidades.objects.all()
+      return render(request, 'cadastro_medico.html', {'especialidades': especialidades})
+    elif request.method == "POST":
+      crm = request.POST.get('crm')
+      nome = request.POST.get('nome')
+      cep = request.POST.get('cep')
+      rua = request.POST.get('rua')
+      bairro = request.POST.get('bairro')
+      numero = request.POST.get('numero')
+      cim = request.FILES.get('cim')
+      rg = request.FILES.get('rg')
+      foto = request.FILES.get('foto')
+      especialidade = request.POST.get('especialidade')
+      descricao = request.POST.get('descricao')
+      valor_consulta = request.POST.get('valor_consulta')
+      
+    #TODO: Validar todos os campos
+
+    dados_medico = DadosMedico(
+        crm=crm,
+        nome=nome,
+        cep=cep,
+        rua=rua,
+        bairro=bairro,
+        numero=numero,
+        rg=rg,
+        cedula_identidade_medica=cim,
+        foto=foto,
+        user=request.user,
+        descricao=descricao,
+        especialidade_id=especialidade,
+        valor_consulta=valor_consulta,
+        user=request.user
+    )
+    
+    dados_medico.save()
+    
+    messages.add_message(request, constants.SUCCESS, 'Cadastro médico realizado com sucesso.')
+
+    return redirect('/medicos/abrir_horario')
+
+```
+
+</details>
+
+
+
