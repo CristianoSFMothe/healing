@@ -822,3 +822,106 @@ def sair(request):
 ```
 
 </details>
+
+## Médico
+
+1. Criação de um novo app chamado `medico`:
+
+```bash
+python manage.py startapp medico
+```
+
+2. Na pasta `settings.py` no core da aplicação da pasta `healing`, realizar a instalação do novo app criado:
+
+<details><summary>Visualizar código</summary>
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'usuarios',
+    'medico'
+]
+```
+
+</details>
+
+3. Em `models.py` dentro do `app medico`, crie a tabela no banco para salvar as informações de médico:
+
+<details><summary>Visualizar código</summary>
+
+```python
+class Especialidades(models.Model):
+    especialidade = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.especialidade
+```
+
+</details>
+
+4. Executando as migration:
+
+```bash
+python manage.py makemigrations
+
+# Resposta do comando executado com sucesso
+Migrations for 'medico':
+  medico\migrations\0001_initial.py
+    - Create model Especialidades
+```
+
+```bash
+python manage.py migrate
+
+# Resposta do comando executado com sucesso
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, medico, sessions
+Running migrations:
+  Applying medico.0001_initial... OK
+```
+
+5. Criação do usuário administrativo:
+
+```bash
+python manage.py createsuperuser
+
+# Resposta do comando executado com sucesso
+Usuário (leave blank to use 'mothe'): mothe # nome do usuário
+Endereço de email: # email pode deixar vazio
+Password: # informar a senha
+Password (again): # confirmar a senha
+Esta senha é muito curta. Ela precisa conter pelo menos 8 caracteres.
+Esta senha é muito comum.
+Esta senha é inteiramente numérica.
+Bypass password validation and create user anyway? [y/N]: y # caso a senha senha uma senha fraca irá perdi a confirmação
+Superuser created successfull
+```
+
+Execute o servidor novamente com o comando `python manage.py runserver` e acesse a rota administrativa.
+
+=== imagem 1 ===
+
+=== imagem 2 ===
+
+6. No arquivo `admin.py` dentro do `app medico`, cadastrar o banco de dados criado de `Especialidades`, para está visível dentro da área administrativa.
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib import admin
+from .models import Especialidades
+
+admin.site.register(Especialidades)
+```
+
+</details>
+
+=== imagem 3 ===
+
+=== imagem 4 ===
+
