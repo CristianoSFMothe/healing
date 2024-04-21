@@ -925,3 +925,69 @@ admin.site.register(Especialidades)
 
 === imagem 4 ===
 
+### Criação da tabela dados médicos
+
+1. Criação da tabela de dados médicos, dentro do arquivo `models.py` do `app medico`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib.auth.models import User
+
+class DadosMedico(models.Model):
+    crm = models.CharField(max_length=30)
+    nome = models.CharField(max_length=100)
+    cep = models.CharField(max_length=15)
+    rua = models.CharField(max_length=100)
+    bairro = models.CharField(max_length=100)
+    numero = models.IntegerField()
+    rg = models.ImageField(upload_to="rgs")
+    cedula_identidade_medica = models.ImageField(upload_to='cim')
+    foto = models.ImageField(upload_to="fotos_perfil")
+    descricao = models.TextField()
+    valor_consulta = models.FloatField(default=100)
+    
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    especialidade = models.ForeignKey(Especialidades, on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return self.user.username
+```
+
+</details>
+
+2. Com a estrutura da tabela criada, com o servidor parado, executar as migration:
+
+```bash
+python manage.py makemigrations
+
+# Resposta do comando executado com sucesso
+Migrations for 'medico':
+  medico\migrations\0002_dadosmedico.py
+    - Create model DadosMedico
+```
+
+```bash
+python manage.py migrate
+
+# Resposta do comando executado com sucesso
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, medico, sessions
+Running migrations:
+  Applying medico.0002_dadosmedico... OK
+```
+
+3. Ativar também a tabela dados médico dentro da área administrativa:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib import admin
+from .models import Especialidades, DadosMedico
+
+admin.site.register(Especialidades)
+admin.site.register(DadosMedico)
+```
+
+</details>
+
