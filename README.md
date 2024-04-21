@@ -1335,5 +1335,31 @@ def cadastro_medico(request):
 
 </details>
 
+Criar uma função para validar se o usuário que está acessando a aplicação já e um médico cadastrado.
+
+4. Dentro do `app medicos` no arquivo `models.py` criar a seguinte função:
+
+<details><summary>Visualizar código</summary>
+
+```python
+def is_medico(user):
+    return DadosMedico.objects.filter(user=user).exists()
+```
+
+</details>
+
+5. Dentro do arquivo `viws.py` no `app medico`, utilizar a função:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from .models import Especialidades, DadosMedico, is_medico
+
+if is_medico(request):
+      messages.add_message(request, constants.WARNING, 'Você já é um médico cadastrado.')
+      return redirect('/medico/abrir_horario')
+```
+
+</details>
 
 
