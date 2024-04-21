@@ -643,3 +643,151 @@ def cadastro(request):
 {% endif %}
 ```
 </details>
+
+## Login
+
+1. No arquivo `urls.py` no `app usuarios`, criar uma nova URL para login:
+
+<details><summary>Visualizar código</summary>
+
+```python	
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('cadastro/', views.cadastro, name="cadastro"),
+    path('login/', views.login_view, name="login"),
+]
+```
+</details>
+
+2. No arquivo `views.py` no `app usuarios`, criar a função:
+
+<details><summary>Visualizar código</summary>
+
+```python	
+def login_view(request):
+  if request.method == 'GET':
+    return render(request, 'login.html')  
+```
+</details>
+
+3. Na pasta `templates` no `app usuarios`, criar um novo arquivo `login.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+{% extends "base.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}" />
+{% endblock 'head' %} {% block 'body' %}
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md d-flex justify-content-center">
+      <div class="cont-cadastro">
+        <br />
+        <br />
+        <section class="cont-logo">
+          <img class="logo" src="{% static 'geral/img/logo.png' %}" />
+          <label class="text-logo">HEALING</label>
+        </section>
+        <hr />
+
+        <form action="#" method="POST">
+          <h2 class="fonte-destaque1">Logar</h2>
+          {% if messages %}
+          <br />
+          {% for message in messages %}
+          <section class="alert {{message.tags}}">{{message}}</section>
+          {% endfor %} {% endif %}
+          <br />
+          <label for="">Username</label>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            class="form-control"
+            placeholder="Username ..."
+          />
+          <br />
+
+          <label for="">Senha</label>
+          <input
+            type="password"
+            name="senha"
+            id="senha"
+            class="form-control"
+            placeholder="Digite sua senha ..."
+          />
+          <br />
+
+          <input
+            type="submit"
+            value="Logar"
+            id="btn_login"
+            class="btn btn-success btn-dark-color"
+          />
+          <a
+            href="{% url 'cadastro' %}"
+            id="btn_cadastro"
+            class="btn btn-dark-color-outline"
+            >Não possuo uma conta</a
+          >
+        </form>
+      </div>
+    </div>
+    <div
+      class="col-md bg-main d-flex justify-content-center align-items-center"
+    >
+      <img src="{% static 'usuarios/img/ilustracao.png' %}" alt="" />
+    </div>
+  </div>
+</div>
+
+{% endblock 'body' %}
+
+```
+</details>
+
+4. Configurar o `form` do `login.html` e o botão `possui uma conta` do `cadastro.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html	
+# Form login.html
+<form action="{% url "login" %}" method="POST">{% csrf_token %}
+
+# Botão possui uma conta cadastro.html
+<a href="{% url 'login' %}" class="btn btn-dark-color-outline">Já possuo uma conta</a>
+``` 
+</details>
+
+5. Alterando a função `login_view`:
+
+<details><summary>Visualizar código</summary>
+
+```python	
+from django.contrib import auth
+
+def cadastro(request):
+  ...
+
+def login_view(request):
+  if request.method == 'GET':
+    return render(request, 'login.html')    
+  elif request.method == 'POST':
+    userrname = request.POST.get('username')
+    senha = request.POST.get('senha')
+    
+  # Verificar se exite no banco de dados
+  user = auth.authenticate(request, username=userrname, password=senha)
+  
+  if user:
+    auth.login(request, user)
+    return redirect('/pacientes/home')
+  
+  messages.add_message(request, constants.ERROR, 'Usuário ou senha inválidos')
+  return redirect('/usuarios/login')
+```
+
+</details>
