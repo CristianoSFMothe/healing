@@ -822,3 +822,544 @@ def sair(request):
 ```
 
 </details>
+
+## Médico
+
+1. Criação de um novo app chamado `medico`:
+
+```bash
+python manage.py startapp medico
+```
+
+2. Na pasta `settings.py` no core da aplicação da pasta `healing`, realizar a instalação do novo app criado:
+
+<details><summary>Visualizar código</summary>
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'usuarios',
+    'medico'
+]
+```
+
+</details>
+
+3. Em `models.py` dentro do `app medico`, crie a tabela no banco para salvar as informações de médico:
+
+<details><summary>Visualizar código</summary>
+
+```python
+class Especialidades(models.Model):
+    especialidade = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.especialidade
+```
+
+</details>
+
+4. Executando as migration:
+
+```bash
+python manage.py makemigrations
+
+# Resposta do comando executado com sucesso
+Migrations for 'medico':
+  medico\migrations\0001_initial.py
+    - Create model Especialidades
+```
+
+```bash
+python manage.py migrate
+
+# Resposta do comando executado com sucesso
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, medico, sessions
+Running migrations:
+  Applying medico.0001_initial... OK
+```
+
+5. Criação do usuário administrativo:
+
+```bash
+python manage.py createsuperuser
+
+# Resposta do comando executado com sucesso
+Usuário (leave blank to use 'mothe'): mothe # nome do usuário
+Endereço de email: # email pode deixar vazio
+Password: # informar a senha
+Password (again): # confirmar a senha
+Esta senha é muito curta. Ela precisa conter pelo menos 8 caracteres.
+Esta senha é muito comum.
+Esta senha é inteiramente numérica.
+Bypass password validation and create user anyway? [y/N]: y # caso a senha senha uma senha fraca irá perdi a confirmação
+Superuser created successfull
+```
+
+Execute o servidor novamente com o comando `python manage.py runserver` e acesse a rota administrativa.
+
+=== imagem 1 ===
+
+=== imagem 2 ===
+
+6. No arquivo `admin.py` dentro do `app medico`, cadastrar o banco de dados criado de `Especialidades`, para está visível dentro da área administrativa.
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib import admin
+from .models import Especialidades
+
+admin.site.register(Especialidades)
+```
+
+</details>
+
+=== imagem 3 ===
+
+=== imagem 4 ===
+
+### Criação da tabela dados médicos
+
+1. Criação da tabela de dados médicos, dentro do arquivo `models.py` do `app medico`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib.auth.models import User
+
+class DadosMedico(models.Model):
+    crm = models.CharField(max_length=30)
+    nome = models.CharField(max_length=100)
+    cep = models.CharField(max_length=15)
+    rua = models.CharField(max_length=100)
+    bairro = models.CharField(max_length=100)
+    numero = models.IntegerField()
+    rg = models.ImageField(upload_to="rgs")
+    cedula_identidade_medica = models.ImageField(upload_to='cim')
+    foto = models.ImageField(upload_to="fotos_perfil")
+    descricao = models.TextField()
+    valor_consulta = models.FloatField(default=100)
+    
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    especialidade = models.ForeignKey(Especialidades, on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return self.user.username
+```
+
+</details>
+
+2. Com a estrutura da tabela criada, com o servidor parado, executar as migration:
+
+```bash
+python manage.py makemigrations
+
+# Resposta do comando executado com sucesso
+Migrations for 'medico':
+  medico\migrations\0002_dadosmedico.py
+    - Create model DadosMedico
+```
+
+```bash
+python manage.py migrate
+
+# Resposta do comando executado com sucesso
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, medico, sessions
+Running migrations:
+  Applying medico.0002_dadosmedico... OK
+```
+
+3. Ativar também a tabela dados médico dentro da área administrativa:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib import admin
+from .models import Especialidades, DadosMedico
+
+admin.site.register(Especialidades)
+admin.site.register(DadosMedico)
+```
+
+</details>
+
+### Configuração da página de médicos
+
+1. Dentro da pasta `healing` no arquivo `urls.py` criar a URL para o `app medico`:
+
+```python
+path('medicos/', include('medico.urls')),
+```
+
+2. No `app medico`, criar um novo arquivo `urls.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('cadastro_medico/', views.cadastro_medico, name="cadastro_medico"),
+]
+```
+
+</details>
+
+3. No `app medico`, no arquivo `views.py`, criar a função:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+
+# Create your views here.
+def cadastro_medico(request):
+    if request.method == "GET":
+        return render(request, 'cadastro_medico.html')
+```
+
+</details>
+
+4. No `app medico` criar uma pasta `templates`, com o arquivo `cadastro_medico.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+{% extends "base.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}" />
+
+{% endblock 'head' %} {% block 'body' %}
+
+<div class="container">
+  <br />
+  <br />
+  <div class="row">
+    <div class="col-md-8">
+      <p class="p-bold">Olá, <span class="color-dark"></span></p>
+      <p class="p-bold">Vamos realizar seu cadastro médico legal.</p>
+      {% if messages %}
+      <br />
+      {% for message in messages %}
+      <section class="alert {{message.tags}}">{{message}}</section>
+      {% endfor %} {% endif %}
+      <br />
+      <form action="#" method="post" enctype="multipart/form-data">
+        <div class="row">
+          <div class="col-md">
+            <label for="">CRM:</label>
+            <input
+              type="text"
+              class="form-control shadow-main-color"
+              name="crm"
+              id="crm"
+              placeholder="CRM..."
+            />
+          </div>
+          <div class="col-md">
+            <label for="">Cédula de identidade médica:</label>
+            <input
+              type="file"
+              name="cim"
+              id="cim"
+              class="form-control shadow-main-color"
+            />
+          </div>
+        </div>
+        <br />
+        <div class="row">
+          <div class="col-md">
+            <label for="">Nome completo:</label>
+            <input
+              type="text"
+              class="form-control shadow-main-color"
+              name="nome"
+              id="nome"
+              placeholder="Digite seu nome ..."
+            />
+          </div>
+          <div class="col-md">
+            <label for="">CEP</label>
+            <input
+              type="text"
+              name="cep"
+              id="cep"
+              class="form-control shadow-main-color"
+            />
+          </div>
+        </div>
+        <br />
+        <label for="">Rua</label>
+        <input
+          type="text"
+          name="rua"
+          id="rua"
+          class="form-control shadow-main-color"
+          placeholder="Endereço ..."
+        />
+        <br />
+        <div class="row">
+          <div class="col-md">
+            <label for="">Bairro:</label>
+            <input
+              type="text"
+              class="form-control shadow-main-color"
+              name="bairro"
+              id="bairro"
+              placeholder="Bairro ..."
+            />
+          </div>
+          <div class="col-md">
+            <label for="">Número:</label>
+            <input
+              type="number"
+              name="numero"
+              id="numero"
+              class="form-control shadow-main-color"
+            />
+          </div>
+        </div>
+        <br />
+        <label for="">RG:</label>
+        <input
+          type="file"
+          name="rg"
+          id="rg"
+          class="form-control shadow-main-color"
+        />
+        <br />
+        <label for="">Foto de perfil:</label>
+        <input
+          type="file"
+          name="foto"
+          id="foto"
+          class="form-control shadow-main-color"
+        />
+        <br />
+        <label for="">Especialidade médica</label>
+        <select name="especialidade" class="form-select" id="">
+          <option value="">X</option>
+        </select>
+        <br />
+        <label for="">Descrição:</label>
+        <textarea
+          name="descricao"
+          id="descricao"
+          class="form-control shadow-main-color"
+        ></textarea>
+        <br />
+        <label for="">Valor consulta:</label>
+        <input
+          type="number"
+          name="valor_consulta"
+          id="valor_consulta"
+          class="form-control shadow-main-color"
+        />
+        <br />
+        <input
+          type="submit"
+          value="Cadastre-se"
+          id="btn_cadastre_se"
+          class="btn btn-success btn-dark-color"
+        />
+      </form>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</div>
+
+{% endblock 'body' %}
+```
+
+</details>
+
+5. Na pasta `templates` na raiz do projeto, criar a estrutura:
+
+```
+|- templates
+| |- static
+| |  |- geral
+| |  | |- css
+| |  | |- js
+| |  |- usuarios
+| |  | |- css
+| |  | |- | usuarios.css
+| |  | |- img
+| |  | |- js
+| |  |- medicos
+| |  | |- css
+| |  | |- | cadastro_medico.css
+| |  | |- img
+| |  | |- js
+```
+
+6. Criar o arquivo `cadastro_medico.css`:
+
+<details><summary>Visualizar código</summary>
+
+```css
+.shadow-main-color{
+    box-shadow: 1px 1px 5px 1px rgba(0, 204, 190,.4);
+}
+```
+
+</details>
+
+7. Importar o `CSS` no `HTML` no `app medico` dentro da pasta `template/cadastro_medico.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}">
+```
+
+</details>
+
+8. Estilizando o nome, no arquivo `cadastro_medico.html`, editar o tag `p` do nome
+
+<details><summary>Visualizar código</summary>
+
+```html
+<p class="p-bold">Olá, <span class="color-dark">{{request.user.username}}</span></p>
+```
+</details>
+
+9. Direcionando o `form` do `app medico` para a URL respectiva:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<form action="{% url 'cadastro_medico' %}" method="post" enctype='multipart/form-data'>{% csrf_token %}
+```
+
+</details>
+
+### Configurando a seleção da especialidade
+
+1. Editar o arquivo `views.py` do `app medico`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+from .models import Especialidades
+
+# Create your views here.
+def cadastro_medico(request):
+    if request.method == "GET":
+      especialidade = Especialidades.objects.all()
+      return render(request, 'cadastro_medico.html', {'especialidade': especialidade})
+```
+
+</details>
+
+2. Recuperando dinamicamente as especialidades médicas cadastradas no banco de dados:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<select name="especialidade" class="form-select" id="">
+  <option disabled selected>Escolha uma especialidade</option>
+  {% for i in especialidades %}
+      <option value="{{ i.id }}">{{ i.especialidade }}</option>
+  {% endfor %}
+</select>
+```
+
+</details>
+
+3. Configuração da função da `views.py` do `cadastro_medico`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render, redirect
+from .models import Especialidades, DadosMedico
+from django.contrib import messages
+from django.http import HttpResponse
+from django.contrib.messages import constants
+
+# Create your views here.
+def cadastro_medico(request):
+    if request.method == "GET":
+      especialidades = Especialidades.objects.all()
+      return render(request, 'cadastro_medico.html', {'especialidades': especialidades})
+    elif request.method == "POST":
+      crm = request.POST.get('crm')
+      nome = request.POST.get('nome')
+      cep = request.POST.get('cep')
+      rua = request.POST.get('rua')
+      bairro = request.POST.get('bairro')
+      numero = request.POST.get('numero')
+      cim = request.FILES.get('cim')
+      rg = request.FILES.get('rg')
+      foto = request.FILES.get('foto')
+      especialidade = request.POST.get('especialidade')
+      descricao = request.POST.get('descricao')
+      valor_consulta = request.POST.get('valor_consulta')
+      
+    #TODO: Validar todos os campos
+
+    dados_medico = DadosMedico(
+        crm=crm,
+        nome=nome,
+        cep=cep,
+        rua=rua,
+        bairro=bairro,
+        numero=numero,
+        rg=rg,
+        cedula_identidade_medica=cim,
+        foto=foto,
+        user=request.user,
+        descricao=descricao,
+        especialidade_id=especialidade,
+        valor_consulta=valor_consulta,
+        user=request.user
+    )
+    
+    dados_medico.save()
+    
+    messages.add_message(request, constants.SUCCESS, 'Cadastro médico realizado com sucesso.')
+
+    return redirect('/medicos/abrir_horario')
+
+```
+
+</details>
+
+Criar uma função para validar se o usuário que está acessando a aplicação já e um médico cadastrado.
+
+4. Dentro do `app medicos` no arquivo `models.py` criar a seguinte função:
+
+<details><summary>Visualizar código</summary>
+
+```python
+def is_medico(user):
+    return DadosMedico.objects.filter(user=user).exists()
+```
+
+</details>
+
+5. Dentro do arquivo `viws.py` no `app medico`, utilizar a função:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from .models import Especialidades, DadosMedico, is_medico
+
+if is_medico(request):
+      messages.add_message(request, constants.WARNING, 'Você já é um médico cadastrado.')
+      return redirect('/medico/abrir_horario')
+```
+
+</details>
+
+
