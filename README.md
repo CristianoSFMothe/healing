@@ -1495,3 +1495,110 @@ def abrir_horario(request):
 ```
 
 </details>
+
+6. Recuperando a foto do médico na página de `Abrir Horários`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+if request.method == 'GET':
+        dados_medico = DadosMedico.objects.get(user=request.user)
+        return render(request, 'abrir_horario.html', {'dados_medico': dados_medico})
+```
+
+</details>
+
+7. Criação da URL para exibição das mídias, editar o arquivo `urls.py` dentro do pasta `healing`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('usuarios/', include('usuarios.urls')),
+    path('medicos/', include('medico.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+</details>
+
+8. Editando o `HTML` para exibição da imagem do perfil do usuário. No arquivo `abrir_horario.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<img src="{{ dados_medico.foto.url }}" class="foto-perfil" alt="foto de perfil do médico" />
+```
+
+</details>
+
+9. Criar dentro da pasta `templates` na raiz do projeto, dentro do caminho `templates/static/medicos/css`, criar uma arquivo `abrir_horario.css`:
+
+<details><summary>Visualizar código</summary>
+
+```css
+.foto-perfil{
+    width: 150px;
+    height: 150px;
+    border-radius: 75px;
+}
+```
+
+</details>
+
+10. Editar o `form` da página de `abrir_horario.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<form action="{% url "abrir_horario" %}" method="POST">{% csrf_token %}
+```
+
+</details>
+
+11. Atualizando a função de `abrir_horario`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from .models import Especialidades, DadosMedico, is_medico, DatasAbertas
+from django.contrib.messages import constants
+from datetime import datetime
+
+def abrir_horario(request):
+    if not is_medico(request.user):
+        messages.add_message(request, constants.WARNING,
+                             'Somente médicos podem abrir horário.')
+        return redirect('/usuarios/sair')
+
+    if request.method == 'GET':
+        dados_medico = DadosMedico.objects.get(user=request.user)
+        return render(request, 'abrir_horario.html', {'dados_medico': dados_medico})
+      
+    elif request.method == 'POST':
+      data = request.POST.get('data')      
+      data_formatada = datetime.strptime(data, '%Y-%m-%dT%H:%M')
+      
+      if data_formatada <= datetime.now():
+        messages.add_message(request, constants.WARNING, 'A data não pode ser anterior a data atual.')
+        return redirect('/medicos/abrir_horario')
+      
+      horario_abrir = DatasAbertas(
+        data=data,
+        user=request.user
+      )
+      
+      horario_abrir.save()
+      
+      messages.add_message(request, constants.SUCCESS, 'Horaio cadastrado com sucesso.')
+      
+      return redirect('/medicos/abrir_horario')
+
+```
+
+</details>
