@@ -76,7 +76,11 @@ def abrir_horario(request):
 
     if request.method == 'GET':
         dados_medico = DadosMedico.objects.get(user=request.user)
-        return render(request, 'abrir_horario.html', {'dados_medico': dados_medico})
+        datas_abertas = DatasAbertas.objects.filter(user=request.user)
+        return render(request, 'abrir_horario.html', {
+          'dados_medico': dados_medico,
+          'datas_abertas': datas_abertas
+          })
       
     elif request.method == 'POST':
       data = request.POST.get('data')      

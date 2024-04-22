@@ -1602,3 +1602,37 @@ def abrir_horario(request):
 ```
 
 </details>
+
+12. Filtrando as datas aberta do usuário logado:
+
+<details><summary>Visualizar código</summary>
+
+```python
+ if request.method == 'GET':
+        dados_medico = DadosMedico.objects.get(user=request.user)
+        datas_abertas = DatasAbertas.objects.filter(user=request.user)
+        return render(request, 'abrir_horario.html', {
+          'dados_medico': dados_medico,
+          'datas_abertas': datas_abertas
+          })
+```
+
+</details>
+
+13. Editando o `settings.py` do core do projeto para não utilizar o **timezone** `USE_TZ = False`
+
+14. Editando o arquivo `abrir_horario.html` para no `li` exibir os horários abertos:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<ul class="list-group">
+        
+  {% for data in datas_abertas %}
+    <li>{{data}}</li>          
+  {% endfor %}
+  
+</ul>
+```
+
+</details>
