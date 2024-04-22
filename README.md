@@ -1370,4 +1370,277 @@ if is_medico(request):
 
 </details>
 
+### Data abertas
 
+1. No `app medico`, criar uma nova nova classe, para representar um tabela no arquivo `models.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+class DatasAbertas(models.Model):
+    data = models.DateTimeField()
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    agendado = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return str(self.data)
+```
+
+</details>
+
+2. Realizar as migrações:
+
+Executando as migration:
+
+```bash
+python manage.py makemigrations
+
+# Resposta do comando executado com sucesso
+Migrations for 'medico':
+  medico\migrations\0003_datasabertas.py
+    - Create model DatasAbertas
+```
+
+```bash
+python manage.py migrate
+
+# Resposta do comando executado com sucesso
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, medico, sessions
+Running migrations:
+  Applying medico.0003_datasabertas... OK
+```
+
+3. Criar a URL para a rota `abrir_horario`, no `app medico` no arquivo `urls.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('cadastro_medico/', views.cadastro_medico, name="cadastro_medico"),
+    path('abrir_horario/', views.abrir_horario, name="abrir_horario"),
+]
+```
+
+</details>
+
+4. No arquivo de `views.py` no `app medico`, criar a função para a rota de `abrir_horario`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+def abrir_horario(request):
+    if not is_medico(request.user):
+      messages.add_message(request, constants.WARNING, 'Somente médicos podem abrir horário.')
+      return redirect('/usuarios/sair')
+    
+    if request.method == 'GET':
+      return render(request, 'abrir_horario.html')
+```
+
+</details>
+
+5. Criar em templates o arquivo `abrir_horario.html`, para renderizar a página de `abrir_horario`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+{% extends "base.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}" />
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}" />
+<link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}" />
+{% endblock 'head' %} {% block 'body' %}
+
+<div class="container">
+  <br /><br />
+
+  <div class="row">
+    <div class="col-md-8">
+      <img src="" class="foto-perfil" alt="" />
+      <label style="margin-left: 30px; font-size: 25px" class="p-bold"
+        >Olá, <span class="color-dark">{{request.user.username}}</span></label
+      >
+
+      <br />
+      {% if messages %}
+      <br />
+      {% for message in messages %}
+      <section class="alert {{message.tags}}">{{message}}</section>
+      {% endfor %} {% endif %}
+      <br />
+      <p style="font-size: 25px" class="p-bold">
+        Abrir horários para consultas
+      </p>
+      <hr />
+      <form action="#" method="POST">
+        <label for="">Escolher data:</label>
+        <input
+          type="datetime-local"
+          name="data"
+          class="form-control shadow-main-color"
+        />
+        <br />
+        <input
+          type="submit"
+          value="Salvar"
+          class="btn btn-success btn-dark-color"
+        />
+      </form>
+    </div>
+    <div class="col-md-4">
+      <p style="font-size: 25px" class="p-bold">Seus horários:</p>
+      <ul class="list-group">
+        <li>X</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% endblock 'body' %}
+```
+
+</details>
+
+6. Recuperando a foto do médico na página de `Abrir Horários`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+if request.method == 'GET':
+        dados_medico = DadosMedico.objects.get(user=request.user)
+        return render(request, 'abrir_horario.html', {'dados_medico': dados_medico})
+```
+
+</details>
+
+7. Criação da URL para exibição das mídias, editar o arquivo `urls.py` dentro do pasta `healing`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('usuarios/', include('usuarios.urls')),
+    path('medicos/', include('medico.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+</details>
+
+8. Editando o `HTML` para exibição da imagem do perfil do usuário. No arquivo `abrir_horario.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<img src="{{ dados_medico.foto.url }}" class="foto-perfil" alt="foto de perfil do médico" />
+```
+
+</details>
+
+9. Criar dentro da pasta `templates` na raiz do projeto, dentro do caminho `templates/static/medicos/css`, criar uma arquivo `abrir_horario.css`:
+
+<details><summary>Visualizar código</summary>
+
+```css
+.foto-perfil{
+    width: 150px;
+    height: 150px;
+    border-radius: 75px;
+}
+```
+
+</details>
+
+10. Editar o `form` da página de `abrir_horario.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<form action="{% url "abrir_horario" %}" method="POST">{% csrf_token %}
+```
+
+</details>
+
+11. Atualizando a função de `abrir_horario`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from .models import Especialidades, DadosMedico, is_medico, DatasAbertas
+from django.contrib.messages import constants
+from datetime import datetime
+
+def abrir_horario(request):
+    if not is_medico(request.user):
+        messages.add_message(request, constants.WARNING,
+                             'Somente médicos podem abrir horário.')
+        return redirect('/usuarios/sair')
+
+    if request.method == 'GET':
+        dados_medico = DadosMedico.objects.get(user=request.user)
+        return render(request, 'abrir_horario.html', {'dados_medico': dados_medico})
+      
+    elif request.method == 'POST':
+      data = request.POST.get('data')      
+      data_formatada = datetime.strptime(data, '%Y-%m-%dT%H:%M')
+      
+      if data_formatada <= datetime.now():
+        messages.add_message(request, constants.WARNING, 'A data não pode ser anterior a data atual.')
+        return redirect('/medicos/abrir_horario')
+      
+      horario_abrir = DatasAbertas(
+        data=data,
+        user=request.user
+      )
+      
+      horario_abrir.save()
+      
+      messages.add_message(request, constants.SUCCESS, 'Horaio cadastrado com sucesso.')
+      
+      return redirect('/medicos/abrir_horario')
+
+```
+
+</details>
+
+12. Filtrando as datas aberta do usuário logado:
+
+<details><summary>Visualizar código</summary>
+
+```python
+ if request.method == 'GET':
+        dados_medico = DadosMedico.objects.get(user=request.user)
+        datas_abertas = DatasAbertas.objects.filter(user=request.user)
+        return render(request, 'abrir_horario.html', {
+          'dados_medico': dados_medico,
+          'datas_abertas': datas_abertas
+          })
+```
+
+</details>
+
+13. Editando o `settings.py` do core do projeto para não utilizar o **timezone** `USE_TZ = False`
+
+14. Editando o arquivo `abrir_horario.html` para no `li` exibir os horários abertos:
+
+<details><summary>Visualizar código</summary>
+
+```html
+<ul class="list-group">
+        
+  {% for data in datas_abertas %}
+    <li>{{data}}</li>          
+  {% endfor %}
+  
+</ul>
+```
+
+</details>
