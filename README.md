@@ -1636,3 +1636,171 @@ def abrir_horario(request):
 ```
 
 </details>
+
+## Buscar pacientes
+
+1. Crie um APP para os pacientes:
+
+```python
+python manage.py startapp paciente
+```
+
+2. Instalar o `app pacientes` no core do projeto na pasta `healing` no arquivo `settings.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'usuarios',
+    'medico',
+    'paciente'
+]
+```
+
+</details>
+
+3. Criar uma nova **URL** no arquivo `healing/settings.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('usuarios/', include('usuarios.urls')),
+    path('medicos/', include('medico.urls')),
+    path('pacientes/', include('paciente.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+</details>
+
+4. No `app paciente`, criar um novo arquivo `urls.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('home/', views.home, name='home')
+]
+```
+
+</details>
+
+5. No arquivo `views.py`, criar a função para renderizar a página `home.html`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+
+def home(request):
+  if request.method == 'GET':
+    return render(request, 'home.html')
+```
+
+</details>
+
+6. Dentro do `app paciente` criar a pasta `templates` com o arquivo `home.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+{% extends "base.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}" />
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}" />
+<link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}" />
+<link rel="stylesheet" href="{% static 'pacientes/css/home.css' %}" />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+/>
+{% endblock 'head' %} {% block 'body' %}
+
+<br /><br />
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-8">
+      <p style="font-size: 25px" class="p-bold">
+        Olá, <span class="color-dark">{{request.user.username}}.</span>
+      </p>
+      <form action="" post="GET">
+        <input
+          type="text"
+          class="form-control shadow-main-color"
+          placeholder="Busque por profissionais ..."
+          name="medico"
+        />
+        <br />
+
+        <div class="especialidades">
+          <input type="checkbox" name="especialidades" value="" />
+          <span class="badge bg-secondary"> Especialidade X </span>
+        </div>
+        <br />
+        <input
+          type="submit"
+          value="filtrar"
+          class="btn btn-success btn-dark-color"
+        />
+      </form>
+      <hr />
+
+      <div class="list-medicos">
+        <div class="card-medicos shadow-main-color">
+          <div class="row">
+            <div class="col-md-3">
+              <img src="#" class="foto-perfil-card" alt="" />
+            </div>
+            <div class="col-md">
+              <p style="font-size: 20px" class="p-bold">
+                Dr(a). Nome aqui
+                <i class="bi bi-patch-check-fill icon-main"></i>
+              </p>
+              <p>Descrição aqui</p>
+            </div>
+          </div>
+          <p><i class="bi bi-map icon-main"></i>&nbsp&nbspRua tal aqui, 000.</p>
+          <p>
+            <i class="bi bi-calendar2-week icon-main"></i>&nbsp&nbspProxima
+            data: 00/00/0000
+
+            <a href="#" class="btn btn-success btn-dark-color">Agendar</a>
+          </p>
+        </div>
+
+        <br />
+      </div>
+    </div>
+    <div class="col-md-4">
+      <p style="font-size: 25px" class="p-bold">Lembretes</p>
+
+      <p class="bg-main-lembrete">
+        <span class="p-bold"
+          ><i class="bi bi-exclamation-triangle-fill icon-differential"></i
+          >&nbsp&nbsp Consulta com Pedro Sampario em 7 dias.</span
+        >
+      </p>
+    </div>
+  </div>
+</div>
+
+{% endblock 'body' %}
+
+```
+
+</details>
