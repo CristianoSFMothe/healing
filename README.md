@@ -2056,6 +2056,7 @@ def home(request):
   <span class="badge bg-secondary"> {{especialidade.especialidade}} </span>
 {% endfor %} 
 ```
+
 </details>
 
 3. Filtrando por especialidades, editar o arquivo de `views.py` do `app pacientes`:
@@ -2087,9 +2088,9 @@ def home(request):
 
 ### Escolhendo horario
 
-<details><summary>Visualizar código</summary>
-
 1. Na `urls.py` do `app paciente`, adicionar uma nova URL:
+
+<details><summary>Visualizar código</summary>
 
 ```python
 from django.urls import path
