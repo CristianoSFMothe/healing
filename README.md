@@ -2103,7 +2103,7 @@ urlpatterns = [
 ]
 ```
 
-</details
+</details>
 
 2. No arquivo `views.py` do `app paciente`, criar a função:
 
@@ -2210,4 +2210,3 @@ def escolher_horario(request, id_dados_medicos):
 
 </details>
 
-5. Editar o 
