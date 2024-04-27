@@ -1230,6 +1230,7 @@ def cadastro_medico(request):
 ```html
 <p class="p-bold">Olá, <span class="color-dark">{{request.user.username}}</span></p>
 ```
+
 </details>
 
 9. Direcionando o `form` do `app medico` para a URL respectiva:
@@ -1391,9 +1392,7 @@ python manage.py makemigrations
 Migrations for 'medico':
   medico\migrations\0003_datasabertas.py
     - Create model DatasAbertas
-```
 
-```bash
 python manage.py migrate
 
 # Resposta do comando executado com sucesso
@@ -2075,3 +2074,129 @@ def home(request):
 ```
 
 </details>
+
+### Escolhendo horario
+
+<details><summary>Visualizar código</summary>
+
+1. Na `urls.py` do `app paciente`, adicionar uma nova URL:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('home/', views.home, name='home'),
+    path('escolher_horario/<int:id_dados_medicos>',
+         views.escolher_horario, name='escolher_horario')
+]
+```
+
+</details
+
+2. No arquivo `views.py` do `app paciente`, criar a função:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from medico.models import DadosMedico, Especialidades, DatasAbertas
+from datetime import datetime
+
+def escolher_horario(request, id_dados_medicos):
+    if request.method == 'GET':
+        medico = DadosMedico.objects.get(id=id_dados_medicos)
+        datas_abertas = DatasAbertas.objects.filter(
+            user=medico.user).filter(data__gte=datetime.now()).filter(agendado=False)
+
+        return render(request, 'escolher_horario.html', {'medico': medico, 'datas_abertas': datas_abertas})
+```
+
+</details>
+
+3. Na pasta templates criar um novo arquivo `escolher_horario.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html	
+{% extends "base.html" %} {% load static %} {% block 'head' %}
+
+<link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}" />
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}" />
+<link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}" />
+<link rel="stylesheet" href="{% static 'pacientes/css/home.css' %}" />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+/>
+
+{% endblock 'head' %} {% block 'body' %}
+
+<div class="container">
+  <br /><br />
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="row">
+        <div class="col-md-3 foto-card">
+          <img src="{{medico.foto.url}}" class="foto-perfil-card" alt="Dr(a) {{medico.nome}}" />
+        </div>
+        <div class="col-md dados-card">
+          <p style="font-size: 20px" class="p-bold nome">
+            Dr(a). {{medico.nome}} <i class="bi bi-patch-check-fill icon-main"></i>
+          </p>
+          <p class="descricao">{{medico.descricao}}</p>
+        </div>
+      </div>
+      <br />
+      {% if messages %}
+      <br />
+      {% for message in messages %}
+      <section class="alert {{message.tags}}">{{message}}</section>
+      {% endfor %} {% endif %}
+
+      <hr />
+
+      <div class="row">
+        
+        {% for data_aberta in datas_abertas %}
+          <div class="col-md-3">
+            <a class="link" href="">
+              <div class="selecionar-dia">
+                <div class="header-dias">
+                  {% comment %} <span class="mes"> {{data_aberta.data.month}} </span> {% endcomment %}
+                  <span class="mes"> {{ data_aberta.data|date:"F" }} </span>
+
+                  <span class="dia-semana"> {{ data_aberta.data|date:"l" }} </span>
+                </div>
+
+                <div class="conteudo-data">{{data_aberta.data}}</div>
+              </div>
+            </a>
+            <br />
+          </div>
+          
+        {% endfor %}
+
+      </div>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</div>
+{% endblock 'body' %}
+
+```
+
+</details>
+
+
+4. Editar a URL do botão **Agendar** no arquivo `home.html` do `app paciente`
+
+<details><summary>Visualizar código</summary>
+
+```html	
+<a href="{% url 'escolher_horario' medico.id %}" class="btn btn-success btn-dark-color">Agendar</a>
+```
+
+</details>
+
+5. Editar o 
