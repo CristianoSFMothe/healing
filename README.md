@@ -11,7 +11,6 @@ O **Healing** e um sistema de tele medicina que, no qual foi criado de acordo co
 * Necessário ter o <a href="https://www.python.org/" target="_blank">Python</a>
 * Com o framework do <a href="https://www.djangoproject.com/" target="_blank">Django</a>
 
-
 ## Configurações iniciais
 
 1. Primeiro devemos criar o ambiente virtual:
@@ -113,8 +112,9 @@ Aplicação Web segui uma estrutura `client-server`, onde possui um `cliente` e 
 
 ![image](https://github.com/CristianoSFMothe/healing/assets/68359459/c37c4a59-2440-4df6-843e-df4a435f9ed9)
 
+--
 
-# Cadastro Usuários
+## Cadastro Usuários
 
 ```bash
 python manage.py startapp usuarios
@@ -561,7 +561,7 @@ def cadastro(request):
 <form action="{% url "cadastro" %}" method="POST">{% csrf_token %}
 ```
 
-### Configuração das mensagens
+## Configuração das mensagens
 
 1. No arquivo `settings.py`, na pasta `healing`, criar o arquivo:
 
@@ -1242,7 +1242,7 @@ def cadastro_medico(request):
 
 </details>
 
-### Configurando a seleção da especialidade
+## Configurando a seleção da especialidade
 
 1. Editar o arquivo `views.py` do `app medico`:
 
@@ -1362,7 +1362,7 @@ if is_medico(request):
 
 </details>
 
-### Data abertas
+## Data abertas
 
 1. No `app medico`, criar uma nova nova classe, para representar um tabela no arquivo `models.py`:
 
@@ -1637,7 +1637,7 @@ def abrir_horario(request):
 
 </details>
 
-## Buscar pacientes
+## Pacientes
 
 1. Crie um APP para os pacientes:
 
@@ -1803,4 +1803,215 @@ def home(request):
 
 ```
 
+</details>
+
+7. Criar dentro da pasta `templates` na raiz do projeto uma estrutura para o `app pacientes`, criando as seguintes pasta dentro de `static`, criar uma pasta para `pacientes` e as subpastas `css` e `js`:
+
+```
+|- templates
+| |- static
+| |  |- pacientes
+| |  | |- css
+| |  | | |- home.css
+| |  | |- js
+```
+
+<details><summary>Visualizar código</summary>
+
+```css
+.especialidades {
+  font-size: 20px;
+}
+
+.card-medicos {
+  width: 60%;
+  background-color: #eaeaea;
+  border: 1px solid var(--main-color);
+  padding: 20px;
+}
+
+.foto-perfil-card {
+  width: 90px;
+  height: 90px;
+  border-radius: 45px;
+}
+
+.foto-perfil-card-lg {
+  width: 180px;
+  height: 180px;
+  border-radius: 90px;
+}
+.icon-main {
+  color: var(--main-color);
+}
+
+.bg-main-lembrete {
+  background-color: var(--dark-color);
+  padding: 10px;
+  color: white;
+}
+
+.icon-differential {
+  color: var(--contrast-color);
+}
+
+table {
+  border-collapse: collapse !important;
+  width: 100%;
+}
+
+th,
+td {
+  padding: 8px;
+  text-align: center;
+  background-color: #eaeaea !important;
+}
+
+th {
+  background-color: #eaeaea;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.today {
+  background-color: var(--dark-color);
+}
+
+.selecionar-dia {
+  width: 100%;
+  background-color: #eaeaea;
+  box-shadow: 1px 1px 10px gray;
+}
+
+.header-dias {
+  background-color: var(--dark-color);
+  padding: 15px;
+  color: white;
+  text-decoration: none;
+}
+
+.dia-semana {
+  float: right;
+}
+
+.conteudo-data {
+  padding: 15px;
+  color: black;
+}
+
+.link:hover {
+  text-decoration: none;
+}
+
+.list-minhas-consultas {
+  background-color: #eaeaea;
+
+  padding: 10px;
+}
+
+.documentos {
+  background-color: #cfcfcf;
+  color: black;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 20px;
+}
+
+```
+
+</details>
+
+### Lista médicos na página de pacientes
+
+1. Na `views.py` no `app pacientes`, buscar todos os médicos:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+from medico.models import DadosMedico
+
+
+def home(request):
+  if request.method == 'GET':
+    medicos = DadosMedico.objects.all()
+    return render(request, 'home.html', { 'medicos': medicos})
+
+
+```
+</details>
+
+2. Recuperar os dados dinamicamente do banco de dados:
+
+<details><summary>Visualizar código</summary>
+
+```html	
+<div class="list-medicos">
+  {% for medico in medicos %}
+
+  <div class="card-medicos shadow-main-color">
+    <div class="row">
+      <div class="col-md-3">
+        <img
+          src="{{medico.foto.url}}"
+          class="foto-perfil-card"
+          alt="{{medico.nome}}"
+        />
+      </div>
+      <div class="col-md">
+        <p style="font-size: 20px" class="p-bold">
+          Dr(a). {{medico.nome}}
+          <i class="bi bi-patch-check-fill icon-main"></i>
+        </p>
+        <p>{{medico.descricao}}</p>
+      </div>
+    </div>
+    <p><i class="bi bi-map icon-main"></i>&nbsp&nbsp{{medico.rua}}</p>
+    <p>
+      <i class="bi bi-calendar2-week icon-main"></i>&nbsp&nbspProxima
+      data: {% if medico.proxima_data %} {{medico.proxima_data}} {% else
+      %} Aguarde abertura de uma data... {% endif %}
+
+      <a href="#" class="btn btn-success btn-dark-color">Agendar</a>
+    </p>
+  </div>
+
+  <br />
+
+  {% endfor %}
+</div>
+```
+
+</details>
+
+3. Criar uma `property` dentro do arquivo de `models.py` do `app medicos`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+@property
+    def proxima_data(self):
+        proxima_data = DatasAbertas.objects.filter(user=self.user).filter(
+            data__gt=datetime.now()).filter(agendado=False).order_by('data').first()
+
+        return proxima_data
+```
+
+</details>
+
+4. Cadastrar os `DadasAbertas` no admin do do `app medico`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib import admin
+from .models import Especialidades, DadosMedico, DatasAbertas
+
+admin.site.register(Especialidades),
+admin.site.register(DadosMedico),
+admin.site.register(DatasAbertas),
+
+```
 </details>
