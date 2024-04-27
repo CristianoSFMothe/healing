@@ -873,9 +873,7 @@ python manage.py makemigrations
 Migrations for 'medico':
   medico\migrations\0001_initial.py
     - Create model Especialidades
-```
 
-```bash
 python manage.py migrate
 
 # Resposta do comando executado com sucesso
@@ -2199,13 +2197,131 @@ def escolher_horario(request, id_dados_medicos):
 
 </details>
 
-
 4. Editar a URL do botão **Agendar** no arquivo `home.html` do `app paciente`
 
 <details><summary>Visualizar código</summary>
 
 ```html	
 <a href="{% url 'escolher_horario' medico.id %}" class="btn btn-success btn-dark-color">Agendar</a>
+```
+
+</details>
+
+#### Agendamento de horários
+
+<details><summary>Visualizar código</summary>
+
+1. Criar as tabelas no arquivo de `models.py` dentro do `app paciente`:
+
+```python
+from django.db import models
+from django.contrib.auth.models import User
+from medico.models import DatasAbertas
+
+class Consulta(models.Model):
+  status_choices =  (
+    ('A', 'Agendada'),
+    ('F', 'Finalizada'),
+    ('C', 'Cancelada'),
+    ('I', 'Iniciada')
+  )
+  
+  paciente = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+  data_aberta = models.ForeignKey(DatasAbertas, on_delete=models.DO_NOTHING)
+  status = models.CharField(max_length=1, choices=status_choices, default='A')
+  link = models.URLField(null=True, blank=True)
+  
+  def __str__(self):
+    return self.paciente.username
+```
+
+</details>
+
+2. Executar as migrações:
+
+<details><summary>Visualizar código</summary>
+
+```bash
+python manage.py makemigrations
+
+python manage.py migrate
+
+```
+
+</details>
+
+3. Adicionar uma nova URL no editando o arquivo `urls.py` do `app paciente`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('home/', views.home, name='home'),
+    path('escolher_horario/<int:id_dados_medicos>',
+         views.escolher_horario, name='escolher_horario'),
+    path('agendar_horario/<int:id_data_aberta>/',
+         views.agendar_horario, name="agendar_horario"),
+]
+```
+
+</details>
+
+4. Criar a função de **Agendar horário** no arquivo de `views.py` do `app paciente`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render, redirect
+from medico.models import DadosMedico, Especialidades, DatasAbertas
+from datetime import datetime
+from .models import Consulta
+from django.contrib import messages
+from django.contrib.messages import constants
+
+def agendar_horario(request, id_data_aberta):
+  if request.method == 'GET':
+    data_aberta = DatasAbertas.objects.get(id=id_data_aberta)
+    
+    horario_agendado = Consulta(
+      paciente=request.user,
+      data_aberta=data_aberta,
+    )
+    
+    horario_agendado.save()
+    
+    data_aberta.agendado = True
+    data_aberta.save()
+    
+    messages.add_message(request, constants.SUCCESS, 'Consulta agendada com sucesso!')
+    
+    return redirect('/pacientes/minhas_consultas/')
+```
+
+</details>
+
+5. Direcionar o link da **Agendar horário**
+
+<details><summary>Visualizar código</summary>
+
+```html
+<a class="link" href="{% url 'agendar_horario' data_aberta.id %}">
+```
+
+</details>
+
+6. Adicionar na área administrativa:
+
+<details><summary>Visualizar código</summary>
+
+```python
+
+from django.contrib import admin
+from .models import Consulta
+
+admin.site.register(Consulta)
 ```
 
 </details>
