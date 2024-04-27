@@ -11,7 +11,6 @@ O **Healing** e um sistema de tele medicina que, no qual foi criado de acordo co
 * Necessário ter o <a href="https://www.python.org/" target="_blank">Python</a>
 * Com o framework do <a href="https://www.djangoproject.com/" target="_blank">Django</a>
 
-
 ## Configurações iniciais
 
 1. Primeiro devemos criar o ambiente virtual:
@@ -113,8 +112,9 @@ Aplicação Web segui uma estrutura `client-server`, onde possui um `cliente` e 
 
 ![image](https://github.com/CristianoSFMothe/healing/assets/68359459/c37c4a59-2440-4df6-843e-df4a435f9ed9)
 
+--
 
-# Cadastro Usuários
+## Cadastro Usuários
 
 ```bash
 python manage.py startapp usuarios
@@ -561,7 +561,7 @@ def cadastro(request):
 <form action="{% url "cadastro" %}" method="POST">{% csrf_token %}
 ```
 
-### Configuração das mensagens
+## Configuração das mensagens
 
 1. No arquivo `settings.py`, na pasta `healing`, criar o arquivo:
 
@@ -1238,6 +1238,7 @@ def cadastro_medico(request):
 ```html
 <p class="p-bold">Olá, <span class="color-dark">{{request.user.username}}</span></p>
 ```
+
 </details>
 
 9. Direcionando o `form` do `app medico` para a URL respectiva:
@@ -1250,7 +1251,7 @@ def cadastro_medico(request):
 
 </details>
 
-### Configurando a seleção da especialidade
+## Configurando a seleção da especialidade
 
 1. Editar o arquivo `views.py` do `app medico`:
 
@@ -1370,7 +1371,7 @@ if is_medico(request):
 
 </details>
 
-### Data abertas
+## Data abertas
 
 1. No `app medico`, criar uma nova nova classe, para representar um tabela no arquivo `models.py`:
 
@@ -1399,9 +1400,7 @@ python manage.py makemigrations
 Migrations for 'medico':
   medico\migrations\0003_datasabertas.py
     - Create model DatasAbertas
-```
 
-```bash
 python manage.py migrate
 
 # Resposta do comando executado com sucesso
@@ -1644,3 +1643,568 @@ def abrir_horario(request):
 ```
 
 </details>
+
+## Pacientes
+
+1. Crie um APP para os pacientes:
+
+```python
+python manage.py startapp paciente
+```
+
+2. Instalar o `app pacientes` no core do projeto na pasta `healing` no arquivo `settings.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'usuarios',
+    'medico',
+    'paciente'
+]
+```
+
+</details>
+
+3. Criar uma nova **URL** no arquivo `healing/settings.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('usuarios/', include('usuarios.urls')),
+    path('medicos/', include('medico.urls')),
+    path('pacientes/', include('paciente.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+</details>
+
+4. No `app paciente`, criar um novo arquivo `urls.py`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('home/', views.home, name='home')
+]
+```
+
+</details>
+
+5. No arquivo `views.py`, criar a função para renderizar a página `home.html`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+
+def home(request):
+  if request.method == 'GET':
+    return render(request, 'home.html')
+```
+
+</details>
+
+6. Dentro do `app paciente` criar a pasta `templates` com o arquivo `home.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html
+{% extends "base.html" %} {% load static %} {% block 'head' %}
+<link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}" />
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}" />
+<link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}" />
+<link rel="stylesheet" href="{% static 'pacientes/css/home.css' %}" />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+/>
+{% endblock 'head' %} {% block 'body' %}
+
+<br /><br />
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-8">
+      <p style="font-size: 25px" class="p-bold">
+        Olá, <span class="color-dark">{{request.user.username}}.</span>
+      </p>
+      <form action="" post="GET">
+        <input
+          type="text"
+          class="form-control shadow-main-color"
+          placeholder="Busque por profissionais ..."
+          name="medico"
+        />
+        <br />
+
+        <div class="especialidades">
+          <input type="checkbox" name="especialidades" value="" />
+          <span class="badge bg-secondary"> Especialidade X </span>
+        </div>
+        <br />
+        <input
+          type="submit"
+          value="filtrar"
+          class="btn btn-success btn-dark-color"
+        />
+      </form>
+      <hr />
+
+      <div class="list-medicos">
+        <div class="card-medicos shadow-main-color">
+          <div class="row">
+            <div class="col-md-3">
+              <img src="#" class="foto-perfil-card" alt="" />
+            </div>
+            <div class="col-md">
+              <p style="font-size: 20px" class="p-bold">
+                Dr(a). Nome aqui
+                <i class="bi bi-patch-check-fill icon-main"></i>
+              </p>
+              <p>Descrição aqui</p>
+            </div>
+          </div>
+          <p><i class="bi bi-map icon-main"></i>&nbsp&nbspRua tal aqui, 000.</p>
+          <p>
+            <i class="bi bi-calendar2-week icon-main"></i>&nbsp&nbspProxima
+            data: 00/00/0000
+
+            <a href="#" class="btn btn-success btn-dark-color">Agendar</a>
+          </p>
+        </div>
+
+        <br />
+      </div>
+    </div>
+    <div class="col-md-4">
+      <p style="font-size: 25px" class="p-bold">Lembretes</p>
+
+      <p class="bg-main-lembrete">
+        <span class="p-bold"
+          ><i class="bi bi-exclamation-triangle-fill icon-differential"></i
+          >&nbsp&nbsp Consulta com Pedro Sampario em 7 dias.</span
+        >
+      </p>
+    </div>
+  </div>
+</div>
+
+{% endblock 'body' %}
+
+```
+
+</details>
+
+7. Criar dentro da pasta `templates` na raiz do projeto uma estrutura para o `app pacientes`, criando as seguintes pasta dentro de `static`, criar uma pasta para `pacientes` e as subpastas `css` e `js`:
+
+```
+|- templates
+| |- static
+| |  |- pacientes
+| |  | |- css
+| |  | | |- home.css
+| |  | |- js
+```
+
+<details><summary>Visualizar código</summary>
+
+```css
+.especialidades {
+  font-size: 20px;
+}
+
+.card-medicos {
+  width: 60%;
+  background-color: #eaeaea;
+  border: 1px solid var(--main-color);
+  padding: 20px;
+}
+
+.foto-perfil-card {
+  width: 90px;
+  height: 90px;
+  border-radius: 45px;
+}
+
+.foto-perfil-card-lg {
+  width: 180px;
+  height: 180px;
+  border-radius: 90px;
+}
+.icon-main {
+  color: var(--main-color);
+}
+
+.bg-main-lembrete {
+  background-color: var(--dark-color);
+  padding: 10px;
+  color: white;
+}
+
+.icon-differential {
+  color: var(--contrast-color);
+}
+
+table {
+  border-collapse: collapse !important;
+  width: 100%;
+}
+
+th,
+td {
+  padding: 8px;
+  text-align: center;
+  background-color: #eaeaea !important;
+}
+
+th {
+  background-color: #eaeaea;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.today {
+  background-color: var(--dark-color);
+}
+
+.selecionar-dia {
+  width: 100%;
+  background-color: #eaeaea;
+  box-shadow: 1px 1px 10px gray;
+}
+
+.header-dias {
+  background-color: var(--dark-color);
+  padding: 15px;
+  color: white;
+  text-decoration: none;
+}
+
+.dia-semana {
+  float: right;
+}
+
+.conteudo-data {
+  padding: 15px;
+  color: black;
+}
+
+.link:hover {
+  text-decoration: none;
+}
+
+.list-minhas-consultas {
+  background-color: #eaeaea;
+
+  padding: 10px;
+}
+
+.documentos {
+  background-color: #cfcfcf;
+  color: black;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 20px;
+}
+
+```
+
+</details>
+
+### Lista médicos na página de pacientes
+
+1. Na `views.py` no `app pacientes`, buscar todos os médicos:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+from medico.models import DadosMedico
+
+
+def home(request):
+  if request.method == 'GET':
+    medicos = DadosMedico.objects.all()
+    return render(request, 'home.html', { 'medicos': medicos})
+
+
+```
+</details>
+
+2. Recuperar os dados dinamicamente do banco de dados:
+
+<details><summary>Visualizar código</summary>
+
+```html	
+<div class="list-medicos">
+  {% for medico in medicos %}
+
+  <div class="card-medicos shadow-main-color">
+    <div class="row">
+      <div class="col-md-3">
+        <img
+          src="{{medico.foto.url}}"
+          class="foto-perfil-card"
+          alt="{{medico.nome}}"
+        />
+      </div>
+      <div class="col-md">
+        <p style="font-size: 20px" class="p-bold">
+          Dr(a). {{medico.nome}}
+          <i class="bi bi-patch-check-fill icon-main"></i>
+        </p>
+        <p>{{medico.descricao}}</p>
+      </div>
+    </div>
+    <p><i class="bi bi-map icon-main"></i>&nbsp&nbsp{{medico.rua}}</p>
+    <p>
+      <i class="bi bi-calendar2-week icon-main"></i>&nbsp&nbspProxima
+      data: {% if medico.proxima_data %} {{medico.proxima_data}} {% else
+      %} Aguarde abertura de uma data... {% endif %}
+
+      <a href="#" class="btn btn-success btn-dark-color">Agendar</a>
+    </p>
+  </div>
+
+  <br />
+
+  {% endfor %}
+</div>
+```
+
+</details>
+
+3. Criar uma `property` dentro do arquivo de `models.py` do `app medicos`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+@property
+    def proxima_data(self):
+        proxima_data = DatasAbertas.objects.filter(user=self.user).filter(
+            data__gt=datetime.now()).filter(agendado=False).order_by('data').first()
+
+        return proxima_data
+```
+
+</details>
+
+4. Cadastrar os `DadasAbertas` no admin do do `app medico`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.contrib import admin
+from .models import Especialidades, DadosMedico, DatasAbertas
+
+admin.site.register(Especialidades),
+admin.site.register(DadosMedico),
+admin.site.register(DatasAbertas),
+
+```
+
+
+### Listando especialidade
+
+1. Editar a `views.py` do `app paciente`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+from medico.models import DadosMedico, Especialidades
+
+def home(request):
+    if request.method == 'GET':
+        medicos = DadosMedico.objects.all()
+        especialidades = Especialidades.objects.all()
+        return render(request, 'home.html', {'medicos': medicos, 'especialidades': especialidades})
+```
+
+</details>
+
+2. Editar o arquivo `home.html` do `app paciente`, para lista as especialidades e adicionar a URL na `action` do formulário:
+
+<details><summary>Visualizar código</summary>
+
+```html	
+<form action="{% url 'home' %}" post="GET">
+
+{% for especialidade in especialidades %}
+  <input type="checkbox" name="especialidades" value="" />
+  <span class="badge bg-secondary"> {{especialidade.especialidade}} </span>
+{% endfor %} 
+```
+</details>
+
+3. Filtrando por especialidades, editar o arquivo de `views.py` do `app pacientes`:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from django.shortcuts import render
+from medico.models import DadosMedico, Especialidades
+
+def home(request):
+    if request.method == 'GET':
+        medico_filtar = request.GET.get('medico')
+        especialidade_filtar = request.GET.getlist('especialidade')
+        
+        medicos = DadosMedico.objects.all()
+        
+        if medico_filtar:
+          medicos = medicos.filter(nome__icontains=medico_filtar)     
+          
+        if especialidade_filtar:
+          medicos = medicos.filter(especialidade_id_in=especialidade_filtar)   
+      
+        especialidades = Especialidades.objects.all()
+        return render(request, 'home.html', {'medicos': medicos, 'especialidades': especialidades})
+```
+
+</details>
+
+### Escolhendo horario
+
+<details><summary>Visualizar código</summary>
+
+1. Na `urls.py` do `app paciente`, adicionar uma nova URL:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('home/', views.home, name='home'),
+    path('escolher_horario/<int:id_dados_medicos>',
+         views.escolher_horario, name='escolher_horario')
+]
+```
+
+</details
+
+2. No arquivo `views.py` do `app paciente`, criar a função:
+
+<details><summary>Visualizar código</summary>
+
+```python
+from medico.models import DadosMedico, Especialidades, DatasAbertas
+from datetime import datetime
+
+def escolher_horario(request, id_dados_medicos):
+    if request.method == 'GET':
+        medico = DadosMedico.objects.get(id=id_dados_medicos)
+        datas_abertas = DatasAbertas.objects.filter(
+            user=medico.user).filter(data__gte=datetime.now()).filter(agendado=False)
+
+        return render(request, 'escolher_horario.html', {'medico': medico, 'datas_abertas': datas_abertas})
+```
+
+</details>
+
+3. Na pasta templates criar um novo arquivo `escolher_horario.html`:
+
+<details><summary>Visualizar código</summary>
+
+```html	
+{% extends "base.html" %} {% load static %} {% block 'head' %}
+
+<link rel="stylesheet" href="{% static 'medicos/css/abrir_horario.css' %}" />
+<link rel="stylesheet" href="{% static 'usuarios/css/usuarios.css' %}" />
+<link rel="stylesheet" href="{% static 'medicos/css/cadastro_medico.css' %}" />
+<link rel="stylesheet" href="{% static 'pacientes/css/home.css' %}" />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+/>
+
+{% endblock 'head' %} {% block 'body' %}
+
+<div class="container">
+  <br /><br />
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="row">
+        <div class="col-md-3 foto-card">
+          <img src="{{medico.foto.url}}" class="foto-perfil-card" alt="Dr(a) {{medico.nome}}" />
+        </div>
+        <div class="col-md dados-card">
+          <p style="font-size: 20px" class="p-bold nome">
+            Dr(a). {{medico.nome}} <i class="bi bi-patch-check-fill icon-main"></i>
+          </p>
+          <p class="descricao">{{medico.descricao}}</p>
+        </div>
+      </div>
+      <br />
+      {% if messages %}
+      <br />
+      {% for message in messages %}
+      <section class="alert {{message.tags}}">{{message}}</section>
+      {% endfor %} {% endif %}
+
+      <hr />
+
+      <div class="row">
+        
+        {% for data_aberta in datas_abertas %}
+          <div class="col-md-3">
+            <a class="link" href="">
+              <div class="selecionar-dia">
+                <div class="header-dias">
+                  {% comment %} <span class="mes"> {{data_aberta.data.month}} </span> {% endcomment %}
+                  <span class="mes"> {{ data_aberta.data|date:"F" }} </span>
+
+                  <span class="dia-semana"> {{ data_aberta.data|date:"l" }} </span>
+                </div>
+
+                <div class="conteudo-data">{{data_aberta.data}}</div>
+              </div>
+            </a>
+            <br />
+          </div>
+          
+        {% endfor %}
+
+      </div>
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</div>
+{% endblock 'body' %}
+
+```
+
+</details>
+
+
+4. Editar a URL do botão **Agendar** no arquivo `home.html` do `app paciente`
+
+<details><summary>Visualizar código</summary>
+
+```html	
+<a href="{% url 'escolher_horario' medico.id %}" class="btn btn-success btn-dark-color">Agendar</a>
+```
+
+</details>
+
+5. Editar o 
