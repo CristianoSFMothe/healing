@@ -1948,6 +1948,7 @@ def home(request):
 
 
 ```
+
 </details>
 
 2. Recuperar os dados dinamicamente do banco de dados:
@@ -2022,6 +2023,7 @@ admin.site.register(DatasAbertas),
 
 ```
 
+</details>
 
 ### Listando especialidade
 
